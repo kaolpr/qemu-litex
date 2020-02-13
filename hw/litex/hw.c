@@ -20,6 +20,10 @@
 #include "generated/csr.h"
 #include "generated/mem.h"
 
+
+#define CONFIG_CPU_RESET_ADDR 0x400000
+
+
 DeviceState *litex_uart_create(hwaddr base, qemu_irq irq, Chardev *chr)
 {
     DeviceState *dev;
@@ -132,6 +136,7 @@ void litex_create_memory(MemoryRegion *address_space_mem, qemu_irq irqs[])
     {
         char *bios_filename = NULL;
         bios_filename = qemu_find_file(QEMU_FILE_TYPE_BIOS, bios_name);
+        fprintf(stdout, "\nBIOS FILE: %s\n", bios_filename);
 
 #ifdef ROM_BASE
 #ifndef ROM_DISABLE
@@ -189,12 +194,12 @@ void litex_create_memory(MemoryRegion *address_space_mem, qemu_irq irqs[])
 
     /* litex timer*/
 #ifdef CSR_TIMER0_BASE
-    litex_timer_create(CSR_TIMER0_BASE & MEM_MASK, irqs[TIMER0_INTERRUPT], SYSTEM_CLOCK_FREQUENCY);
+    litex_timer_create(CSR_TIMER0_BASE & MEM_MASK, irqs[TIMER0_INTERRUPT], CONFIG_CLOCK_FREQUENCY);
 #endif
 
 /* litex ethernet*/
 #ifdef CSR_ETHMAC_BASE
-    litex_liteeth_create(CSR_ETHMAC_BASE & MEM_MASK, CSR_ETHPHY_BASE & MEM_MASK, ETHMAC_BASE & MEM_MASK, irqs[ETHMAC_INTERRUPT]);
+    litex_liteeth_create(CSR_ETHMAC_BASE & MEM_MASK, 0 & MEM_MASK, ETHMAC_BASE & MEM_MASK, irqs[ETHMAC_INTERRUPT]);
 #endif
 
 #ifdef CSR_OPSIS_I2C_BASE
